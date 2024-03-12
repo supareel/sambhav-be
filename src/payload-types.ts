@@ -11,6 +11,9 @@ export interface Config {
     users: User;
     student: Student;
     facutly: Facutly;
+    centers: Center;
+    batches: Batch;
+    courses: Course;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
@@ -62,6 +65,40 @@ export interface Facutly {
   email: string;
   dob?: string | null;
   age?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "centers".
+ */
+export interface Center {
+  id: number;
+  location: string;
+  map_location: string;
+  inaugurated_at: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "batches".
+ */
+export interface Batch {
+  id: number;
+  name: string;
+  start_date: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: number;
+  name: string;
+  price: number;
   updatedAt: string;
   createdAt: string;
 }

@@ -12,6 +12,7 @@ import Centers from "./collections/Centers";
 import Courses from "./collections/Courses";
 import Faculty from "./collections/Faculty";
 import Batch from "./collections/Batch";
+import Attachments from "./collections/Attachments";
 
 export default buildConfig({
   admin: {
@@ -19,7 +20,7 @@ export default buildConfig({
     bundler: webpackBundler(),
   },
   editor: slateEditor({}),
-  collections: [Users, Students, Faculty, Centers, Batch, Courses],
+  collections: [Users, Students, Faculty, Centers, Batch, Courses, Attachments],
   typescript: {
     outputFile: path.resolve(__dirname, "payload-types.ts"),
   },

@@ -4,7 +4,7 @@ import type { FieldHook } from "payload/types";
 const Students: CollectionConfig = {
   slug: "student",
   admin: {
-    useAsTitle: "full_name",
+    useAsTitle: "first_name",
   },
   fields: [
     {
@@ -33,7 +33,7 @@ const Students: CollectionConfig = {
         beforeChange: [
           ({ value, operation }) => {
             if (operation === "create" || operation === "update") {
-              value = value.toString().trim();
+              value = value?.toString().trim();
             }
             return value;
           },
@@ -61,23 +61,21 @@ const Students: CollectionConfig = {
     {
       name: "phone",
       type: "text",
+      validate: async (value, { operation }) => {
+        if (operation !== "create" && operation !== "update" && !value)
+          return true;
+
+        var regex = /\b(?:\+?91|0)?[ -]?[6789]\d{9}\b/;
+        // ensures data is not stored in DB
+        if (regex.test(value)) {
+          return true;
+        }
+        return "phone number is not indian format";
+      },
       hooks: {
         beforeChange: [
           ({ value }) => {
-            value = value.toString().trim();
-            var regex = /\b(?:\+?91|0)?[ -]?[6789]\d{9}\b/;
-            // ensures data is not stored in DB
-            if (regex.test(value)) {
-              return value;
-            }
-            throw new Error("phone number is not indian format");
-          },
-        ],
-        afterRead: [
-          ({ data }) => {
-            return data.last_name
-              ? `${data.first_name} ${data.last_name}`
-              : data.first_name;
+            value = value?.toString().trim();
           },
         ],
       },
@@ -106,7 +104,7 @@ const Students: CollectionConfig = {
         beforeChange: [
           ({ value, operation }) => {
             if (operation === "create" || operation === "update") {
-              value = value.toString().trim();
+              value = value?.toString().trim();
             }
             return value;
           },
@@ -116,6 +114,7 @@ const Students: CollectionConfig = {
     {
       name: "age",
       type: "number",
+      hidden: true,
       hooks: {
         beforeChange: [
           ({ siblingData }) => {
@@ -126,13 +125,14 @@ const Students: CollectionConfig = {
         afterRead: [
           ({ data }) => {
             let now = new Date();
-            let age: number = now.getFullYear() - data.dob.getFullYear();
+            let dob = new Date(data.dob);
+            let age: number = now.getFullYear() - dob.getFullYear();
 
             // Adjust age if birthday hasn't occurred yet this year
-            let monthDiff = now.getMonth() - data.dob.getMonth();
+            let monthDiff = now.getMonth() - dob.getMonth();
             if (
               monthDiff < 0 ||
-              (monthDiff === 0 && now.getDate() < data.dob.getDate())
+              (monthDiff === 0 && now.getDate() < dob.getDate())
             ) {
               age--;
             }
