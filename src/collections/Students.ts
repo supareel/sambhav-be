@@ -1,10 +1,16 @@
 import { CollectionConfig } from "payload/types";
-import type { FieldHook } from "payload/types";
+import bcrypt from 'bcrypt';
 
 const Students: CollectionConfig = {
   slug: "student",
   admin: {
     useAsTitle: "first_name",
+  },
+  access: {
+    read: () => true,
+    create: () => true,
+    update: () => false,
+    delete: () => false,
   },
   fields: [
     {
@@ -45,16 +51,12 @@ const Students: CollectionConfig = {
       type: "text",
       hidden: true,
       hooks: {
-        beforeChange: [
-          ({ siblingData }) => {
-            // ensures data is not stored in DB
-            delete siblingData["full_name"];
-          },
-        ],
         afterRead: [
           ({ data }) => {
-            return `${data.first_name} ${data.last_name}`;
-          },
+            if(data){
+            return `${data.first_name} ${data.last_name || ""}`;
+           }
+           },
         ],
       },
     },
@@ -84,13 +86,29 @@ const Students: CollectionConfig = {
       name: "email",
       type: "email",
       required: true,
-      unique: true,
-      index: true,
+      unique: true, // Ensure emails are unique
       hooks: {
         beforeChange: [
           ({ value, operation }) => {
             if (operation === "create" || operation === "update") {
-              value = value.toString().trim();
+              value = value ? value.toString().trim() : "";
+            }
+            return value;
+          },
+        ],
+      },
+    },
+    {
+      name: "password",
+      type: "text",
+      required: true,
+      minLength: 6,
+      hooks: {
+        beforeChange: [
+          async ({ value }) => {
+            if (value) {
+              const hashedPassword = await bcrypt.hash(value, 10);
+              return hashedPassword;
             }
             return value;
           },
@@ -116,16 +134,10 @@ const Students: CollectionConfig = {
       type: "number",
       hidden: true,
       hooks: {
-        beforeChange: [
-          ({ siblingData }) => {
-            delete siblingData.age;
-          },
-        ],
-
         afterRead: [
           ({ data }) => {
             let now = new Date();
-            let dob = new Date(data.dob);
+            let dob = new Date(data?.dob);
             let age: number = now.getFullYear() - dob.getFullYear();
 
             // Adjust age if birthday hasn't occurred yet this year
@@ -141,7 +153,27 @@ const Students: CollectionConfig = {
         ],
       },
     },
+    {
+      name: "gender",
+      type: "select",
+      options: [
+        { label: "Male", value: "male" },
+        { label: "Female", value: "female" },
+        { label: "Other", value: "other" },
+      ],
+      required: true,
+    },
   ],
+  hooks: {
+    afterChange: [
+      async ({ operation,doc }) => {
+        if (operation === 'create') {
+          // Here you can implement further logic after creating a student
+          console.log('New student created:', doc);
+        }
+      },
+    ],
+  },
   timestamps: true,
 };
 
