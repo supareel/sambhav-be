@@ -1,8 +1,8 @@
 import { CollectionConfig } from "payload/types";
-import type { FieldHook } from "payload/types";
+import { createDocument } from "payload";
 
 const Faculties: CollectionConfig = {
-  slug: "facutly",
+  slug: "faculty", // Corrected slug spelling from "facutly" to "faculty"
   admin: {
     useAsTitle: "full_name",
   },
@@ -72,7 +72,7 @@ const Faculties: CollectionConfig = {
             if (regex.test(value)) {
               return value;
             }
-            throw new Error("phone number is not indian format");
+            throw new Error("Phone number is not in Indian format");
           },
         ],
         afterRead: [
@@ -114,35 +114,27 @@ const Faculties: CollectionConfig = {
       },
     },
     {
-      name: "age",
-      type: "number",
-      hooks: {
-        beforeChange: [
-          ({ siblingData }) => {
-            delete siblingData.age;
-          },
-        ],
-
-        afterRead: [
-          ({ data }) => {
-            let now = new Date();
-            let age: number = now.getFullYear() - data.dob.getFullYear();
-
-            // Adjust age if birthday hasn't occurred yet this year
-            let monthDiff = now.getMonth() - data.dob.getMonth();
-            if (
-              monthDiff < 0 ||
-              (monthDiff === 0 && now.getDate() < data.dob.getDate())
-            ) {
-              age--;
-            }
-            return age;
-          },
-        ],
-      },
+      name: "qualifications", // New field for faculty qualifications
+      type: "text",
+      required: true,
+    },
+    {
+      name: "department", // New field for faculty department
+      type: "text",
+      required: true,
     },
   ],
   timestamps: true,
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        await createDocument({
+          collection: "faculty", // Corrected collection name
+          data: doc,
+        });
+      },
+    ],
+  },
 };
 
 export default Faculties;
