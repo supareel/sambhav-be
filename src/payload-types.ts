@@ -10,10 +10,11 @@ export interface Config {
   collections: {
     users: User;
     student: Student;
-    facutly: Facutly;
+    faculty: Faculty;
     centers: Center;
     batches: Batch;
     courses: Course;
+    attachments: Attachment;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
@@ -47,16 +48,18 @@ export interface Student {
   full_name?: string | null;
   phone?: string | null;
   email: string;
+  password: string;
   dob?: string | null;
   age?: number | null;
+  gender: 'male' | 'female' | 'other';
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "facutly".
+ * via the `definition` "faculty".
  */
-export interface Facutly {
+export interface Faculty {
   id: number;
   first_name: string;
   last_name?: string | null;
@@ -64,7 +67,8 @@ export interface Facutly {
   phone?: string | null;
   email: string;
   dob?: string | null;
-  age?: number | null;
+  qualifications: string;
+  department: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -101,6 +105,22 @@ export interface Course {
   price: number;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attachments".
+ */
+export interface Attachment {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
